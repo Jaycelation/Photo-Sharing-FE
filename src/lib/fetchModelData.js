@@ -2,7 +2,7 @@ const BE_URL = "http://localhost:8081"
 
 async function fetchModel(url) {
   try{
-    const response = await fetch(BE_URL + "/api" + url, {
+    const response = await fetch(BE_URL + url, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

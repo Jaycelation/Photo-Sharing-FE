@@ -39,7 +39,7 @@ function UserPhotos({ setContext }) {
       try {
         const [userData, photosData] = await Promise.all([
           fetchModel(`/user/${userId}`),
-          fetchModel(`/photo/photosOfUser/${userId}`)
+          fetchModel(`/photosOfUser/${userId}`)
         ])
         if (userData && userData.first_name) {
           setContext(`Photos of ${userData.first_name} ${userData.last_name}`)
@@ -98,7 +98,7 @@ function UserPhotos({ setContext }) {
           <CardContent>
             <Box
               component="img"
-              src={`/images/${photo.file_name}`}
+              src={`http://localhost:8081/images/${photo.file_name}`}
               alt={photo.file_name}
               sx={{
                 width: '100%',
