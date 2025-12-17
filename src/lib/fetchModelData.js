@@ -4,6 +4,7 @@ async function fetchModel(url) {
   try{
     const response = await fetch(BE_URL + url, {
       method: "GET",
+      credentials: 'include',
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json"
