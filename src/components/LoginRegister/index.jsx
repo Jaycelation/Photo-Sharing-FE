@@ -1,7 +1,14 @@
 import React, { useState } from 'react'
-import { Grid, Typography, TextField, Button, Alert, Paper, Box } from '@mui/material'
+import { Grid, Typography, TextField, Button, Alert, Paper, Box, Link } from '@mui/material'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { BE_URL } from '../../lib/config'
 
 function LoginRegister({ onLoginChange }) {
+    const navigate = useNavigate()
+    const location = useLocation()
+    
+    const isLoginView = location.pathname === '/login'
+
     const [loginName, setLoginName] = useState('')
     const [loginPassword, setLoginPassword] = useState('')
     const [loginError, setLoginError] = useState('')
@@ -20,12 +27,11 @@ function LoginRegister({ onLoginChange }) {
 
     const handleLogin = async (e) => {
         e.preventDefault()
+        setLoginError('')
         try {
-            const response = await fetch('http://localhost:8081/admin/login', {
+            const response = await fetch(`${BE_URL}/admin/login`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     login_name: loginName,
                     password: loginPassword
@@ -41,8 +47,8 @@ function LoginRegister({ onLoginChange }) {
             const user = await response.json()
             onLoginChange(user)
 
-        } catch (err) {
-            setLoginError(err.message)
+        } catch (error) {
+            setLoginError(error.message)
         }
     }
 
@@ -60,11 +66,9 @@ function LoginRegister({ onLoginChange }) {
         }
 
         try {
-            const response = await fetch('http://localhost:8081/user', { 
+            const response = await fetch(`${BE_URL}/user`, { 
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     login_name: registerData.login_name,
                     password: registerData.password,
@@ -82,11 +86,14 @@ function LoginRegister({ onLoginChange }) {
                 throw new Error(errData.message || 'Registration failed')
             }
 
-            setRegisterMessage({ type: 'success', text: "Registration successful! Please login." })
+            alert("Registration successful! Switching to login...")
+            
             setRegisterData({
                 login_name: '', password: '', confirm_password: '',
                 first_name: '', last_name: '', location: '', description: '', occupation: ''
             })
+
+            navigate('/login') 
 
         } catch (err) {
             setRegisterMessage({ type: 'error', text: err.message || "Registration failed" })
@@ -94,73 +101,105 @@ function LoginRegister({ onLoginChange }) {
     }
 
     return (
-        <Grid container spacing={2} sx={{ padding: 4, justifyContent: 'center' }}>
-            <Grid item xs={12} md={5}>
-                <Paper elevation={3} sx={{ padding: 3 }}>
-                    <Typography variant="h5" gutterBottom>Login</Typography>
-                    {loginError && <Alert severity="error" sx={{ mb: 2 }}>{loginError}</Alert>}
+        <Grid container justifyContent="center" alignItems="center" sx={{ minHeight: '60vh' }}>
+            <Grid item xs={12} sm={8} md={5}>
+                <Paper elevation={3} sx={{ padding: 4, borderRadius: 2 }}>
+                    
+                    {isLoginView ? (
+                        <Box>
+                            <Typography variant="h4" align="center" gutterBottom fontWeight="bold" color="primary">
+                                Login
+                            </Typography>
+                            
+                            {registerMessage.type === 'success' && (
+                                <Alert severity="success" sx={{ mb: 2 }}>{registerMessage.text}</Alert>
+                            )}
+                            
+                            {loginError && <Alert severity="error" sx={{ mb: 2 }}>{loginError}</Alert>}
 
-                    <form onSubmit={handleLogin}>
-                        <TextField
-                            label="Login Name"
-                            fullWidth
-                            margin="normal"
-                            value={loginName}
-                            onChange={(e) => setLoginName(e.target.value)}
-                            required
-                        />
-                        <TextField
-                            label="Password"
-                            type="password"
-                            fullWidth
-                            margin="normal"
-                            value={loginPassword}
-                            onChange={(e) => setLoginPassword(e.target.value)}
-                            required
-                        />
-                        <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
-                            Login
-                        </Button>
-                    </form>
-                </Paper>
-            </Grid>
+                            <form onSubmit={handleLogin}>
+                                <TextField
+                                    label="Login Name" fullWidth margin="normal"
+                                    value={loginName} onChange={(e) => setLoginName(e.target.value)} required
+                                />
+                                <TextField
+                                    label="Password" type="password" fullWidth margin="normal"
+                                    value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required
+                                />
+                                <Button type="submit" variant="contained" fullWidth size="large" sx={{ mt: 3, mb: 2 }}>
+                                    Sign In
+                                </Button>
+                            </form>
 
-            <Grid item xs={12} md={6}>
-                <Paper elevation={3} sx={{ padding: 3 }}>
-                    <Typography variant="h5" gutterBottom>Register New User</Typography>
+                            <Box textAlign="center" mt={2}>
+                                <Typography variant="body2">
+                                    Don't have an account?{' '}
+                                    <Link 
+                                        component="button" variant="body2"
+                                        onClick={() => {
+                                            navigate('/register')
+                                            setLoginError('')
+                                        }}
+                                        sx={{ fontWeight: 'bold', cursor: 'pointer' }}
+                                    >
+                                        Register here
+                                    </Link>
+                                </Typography>
+                            </Box>
+                        </Box>
+                    ) : (
+                        <Box>
+                            <Typography variant="h4" align="center" gutterBottom fontWeight="bold" color="primary">
+                                Register
+                            </Typography>
 
-                    {registerMessage.text && (
-                        <Alert severity={registerMessage.type} sx={{ mb: 2 }}>
-                            {registerMessage.text}
-                        </Alert>
+                            {registerMessage.text && registerMessage.type === 'error' && (
+                                <Alert severity="error" sx={{ mb: 2 }}>{registerMessage.text}</Alert>
+                            )}
+
+                            <form onSubmit={handleRegister}>
+                                <TextField name="login_name" label="Login Name *" fullWidth margin="dense" value={registerData.login_name} onChange={handleRegisterInput} required />
+
+                                <Grid container spacing={1}>
+                                    <Grid item xs={6}>
+                                        <TextField name="first_name" label="First Name *" fullWidth margin="dense" value={registerData.first_name} onChange={handleRegisterInput} required />
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <TextField name="last_name" label="Last Name *" fullWidth margin="dense" value={registerData.last_name} onChange={handleRegisterInput} required />
+                                    </Grid>
+                                </Grid>
+                                
+                                <TextField name="password" label="Password *" type="password" fullWidth margin="dense" value={registerData.password} onChange={handleRegisterInput} required />
+                                <TextField name="confirm_password" label="Confirm Password *" type="password" fullWidth margin="dense" value={registerData.confirm_password} onChange={handleRegisterInput} required />
+                                
+                                <TextField name="occupation" label="Occupation" fullWidth margin="dense" value={registerData.occupation} onChange={handleRegisterInput} />
+                                <TextField name="location" label="Location" fullWidth margin="dense" value={registerData.location} onChange={handleRegisterInput} />
+                                <TextField name="description" label="Description" fullWidth margin="dense" multiline rows={2} value={registerData.description} onChange={handleRegisterInput} />
+
+                                <Button type="submit" variant="contained" color="primary" fullWidth size="large" sx={{ mt: 3, mb: 2 }}>
+                                    Register Me
+                                </Button>
+                            </form>
+
+                            <Box textAlign="center" mt={2}>
+                                <Typography variant="body2">
+                                    Already have an account?{' '}
+                                    <Link 
+                                        component="button" variant="body2"
+                                        onClick={() => {
+                                            navigate('/login')
+                                            setRegisterMessage({ type: '', text: '' })
+                                        }}
+                                        sx={{ fontWeight: 'bold', cursor: 'pointer' }}
+                                    >
+                                        Back to Login
+                                    </Link>
+                                </Typography>
+                            </Box>
+                        </Box>
                     )}
-
-                    <form onSubmit={handleRegister}>
-                        <TextField name="login_name" label="Login Name *" fullWidth margin="dense" value={registerData.login_name} onChange={handleRegisterInput} required />
-
-                        <Grid container spacing={1}>
-                            <Grid item xs={6}>
-                                <TextField name="first_name" label="First Name *" fullWidth margin="dense" value={registerData.first_name} onChange={handleRegisterInput} required />
-                            </Grid>
-                            <Grid item xs={6}>
-                                <TextField name="last_name" label="Last Name *" fullWidth margin="dense" value={registerData.last_name} onChange={handleRegisterInput} required />
-                            </Grid>
-                        </Grid>
-                        
-                        <TextField name="password" label="Password *" type="password" fullWidth margin="dense" value={registerData.password} onChange={handleRegisterInput} required />
-                        <TextField name="confirm_password" label="Confirm Password *" type="password" fullWidth margin="dense" value={registerData.confirm_password} onChange={handleRegisterInput} required />
-                        
-                        <TextField name="occupation" label="Occupation" fullWidth margin="dense" value={registerData.occupation} onChange={handleRegisterInput} />
-                        <TextField name="location" label="Location" fullWidth margin="dense" value={registerData.location} onChange={handleRegisterInput} />
-                        <TextField name="description" label="Description" fullWidth margin="dense" multiline rows={2} value={registerData.description} onChange={handleRegisterInput} />
-
-                        <Button type="submit" variant="contained" color="success" fullWidth sx={{ mt: 2 }}>
-                            Register Me
-                        </Button>
-                    </form>
                 </Paper>
             </Grid>
-
         </Grid>
     )
 }

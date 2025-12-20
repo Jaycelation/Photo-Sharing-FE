@@ -1,11 +1,9 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import {
-    Card, CardContent, CardHeader, Typography, Divider, Avatar, Box, Alert, CircularProgress,
-    IconButton, TextField, Button
+    Card, CardContent, CardHeader, Typography, Divider, Avatar, Box, Alert, CircularProgress, TextField, Button
 } from '@mui/material'
 import { red } from '@mui/material/colors'
-import DeleteIcon from '@mui/icons-material/Delete'
 import SendIcon from '@mui/icons-material/Send'
 
 import fetchModel from '../../lib/fetchModelData'
@@ -43,25 +41,6 @@ function UserPhotos({ setContext, currentUser }) {
         loadData()
     }, [userId])
 
-    const handleDeletePhoto = async (photoId) => {
-        if (!window.confirm("Are you sure you want to delete this photo?")) return
-        try {
-            const response = await fetch(`${BE_URL}/photos/${photoId}`, {
-                method: 'DELETE',
-                credentials: 'include'
-            })
-
-            if (!response.ok) {
-                throw new Error("Server error: " + response.status)
-            }
-
-            setPhotos(photos.filter(p => p._id !== photoId))
-        } catch (err) {
-            console.error(err)
-            alert("Failed to delete photo: " + err.message)
-        }
-    }
-
     const handleCommentSubmit = async (photoId) => {
         const commentText = commentInputs[photoId]
         if (!commentText || !commentText.trim()) return
@@ -83,7 +62,7 @@ function UserPhotos({ setContext, currentUser }) {
 
     if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>
     if (error) return <Alert severity="error" sx={{ m: 2 }}>{error}</Alert>
-    if (!photos || photos.length === 0) return <Alert severity="info" sx={{ m: 2 }}>No photos found.</Alert>
+    if (!photos || photos.length === 0) return <Alert severity="info" sx={{ m: 2 }}>This user has not posted any photos yet.</Alert>
 
     return (
         <Box sx={{ maxWidth: 800, margin: 'auto', mt: 4 }}>
@@ -91,13 +70,6 @@ function UserPhotos({ setContext, currentUser }) {
                 <Card key={photo._id} variant="outlined" sx={{ marginBottom: 4 }}>
                     <CardHeader
                         avatar={<Avatar sx={{ bgcolor: red[500] }}>P</Avatar>}
-                        action={
-                            (currentUser && currentUser._id === photo.user_id) && (
-                                <IconButton onClick={() => handleDeletePhoto(photo._id)}>
-                                    <DeleteIcon />
-                                </IconButton>
-                            )
-                        }
                         title={dateTimeFormatter.format(new Date(photo.date_time))}
                         subheader={photo.file_name}
                     />
@@ -136,7 +108,7 @@ function UserPhotos({ setContext, currentUser }) {
                                     onChange={(e) => setCommentInputs({ ...commentInputs, [photo._id]: e.target.value })}
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter' && !e.shiftKey) {
-                                            e.preventDefault() 
+                                            e.preventDefault()
                                             handleCommentSubmit(photo._id)
                                         }
                                     }}

@@ -47,24 +47,34 @@ function AddPhoto() {
 
             {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-            <form onSubmit={handleUpload} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <form onSubmit={handleUpload} style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%', maxWidth: '400px' }}>
                 <Input
                     type="file"
                     onChange={handleFileChange}
                     inputProps={{ accept: 'image/*' }}
                 />
 
-                <Button variant="contained" type="submit" disabled={!file}>
-                    Upload Photo
-                </Button>
+                <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                    <Button 
+                        variant="outlined" 
+                        color="primary" 
+                        onClick={() => navigate(-1)}
+                    >
+                        Back
+                    </Button>
+
+                    <Button variant="contained" type="submit" disabled={!file}>
+                        Upload Photo
+                    </Button>
+                </Box>
 
                 {file && (
-                    <Box mt={2}>
+                    <Box mt={2} textAlign="center">
                         <Typography variant="subtitle1">Preview:</Typography>
                         <img
                             src={URL.createObjectURL(file)}
                             alt="preview"
-                            style={{ maxWidth: '300px', maxHeight: '300px', marginTop: '10px' }}
+                            style={{ maxWidth: '100%', maxHeight: '300px', marginTop: '10px', objectFit: 'contain' }}
                         />
                     </Box>
                 )}

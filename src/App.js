@@ -23,11 +23,21 @@ function App() {
                 <Route path="/login" element={
                     user ? <Navigate to="/" replace /> : (
                         <Grid container spacing={2} sx={{ p: 2 }}>
-                            <Grid item xs={12}><LoginRegister onLoginChange={setUser} /></Grid>
+                            <Grid item xs={12}>
+                                <LoginRegister onLoginChange={setUser} />
+                            </Grid>
                         </Grid>
                     )
                 } />
-
+                <Route path="/register" element={
+                    user ? <Navigate to="/" replace /> : (
+                        <Grid container spacing={2} sx={{ p: 2 }}>
+                            <Grid item xs={12}>
+                                <LoginRegister onLoginChange={setUser} />
+                            </Grid>
+                        </Grid>
+                    )
+                } />
                 <Route path="/*" element={
                     <ProtectedRoute userLoggedIn={user}>
                         <Grid container spacing={2} sx={{ p: 2 }}>
@@ -39,12 +49,10 @@ function App() {
                                 <Paper elevation={3} sx={{ p: 2, minHeight: '80vh' }}>
                                     <Routes>
                                         <Route path="/users/:userId" element={<UserDetail setContext={setContext} currentUser={user} />} />
-
                                         <Route path="/photos/:userId" element={<UserPhotos setContext={setContext} currentUser={user} />} />
-
                                         <Route path="/upload" element={<PhotoAdd />} />
-
                                         <Route path="/users" element={<Alert severity="info" sx={{ mt: 2 }}>Select a user from the list.</Alert>} />
+                                        
                                         <Route path="/" element={<Navigate to="/users" replace />} />
                                         <Route path="*" element={<Navigate to="/users" replace />} />
                                     </Routes>
