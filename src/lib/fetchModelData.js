@@ -1,4 +1,4 @@
-const BE_URL = "http://localhost:8081"
+import { BE_URL } from '../lib/config'
 
 async function fetchModel(url) {
   try{

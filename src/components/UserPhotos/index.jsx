@@ -1,13 +1,15 @@
 import React, { useEffect, useState, useMemo } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import {
-    Card, CardContent, CardHeader, Typography, Divider, Avatar, Box, Alert, CircularProgress, TextField, Button
+    Card, CardContent, CardHeader, Divider, Avatar, Box, Alert, CircularProgress, TextField, Button
 } from '@mui/material'
 import { red } from '@mui/material/colors'
 import SendIcon from '@mui/icons-material/Send'
 
 import fetchModel from '../../lib/fetchModelData'
 import { BE_URL } from '../../lib/config'
+
+import UserComment from '../UserComment'
 
 function UserPhotos({ setContext, currentUser }) {
     const { userId } = useParams()
@@ -85,17 +87,7 @@ function UserPhotos({ setContext, currentUser }) {
                         <Divider sx={{ my: 2 }}>Comments</Divider>
 
                         {photo.comments?.map((comment) => (
-                            <Box key={comment._id} sx={{ mb: 2, bgcolor: '#f5f5f5', p: 1, borderRadius: 1 }}>
-                                <Typography variant="subtitle2" component="span" fontWeight="bold">
-                                    <Link to={`/users/${comment.user._id}`} style={{ textDecoration: 'none', color: '#1976d2' }}>
-                                        {comment.user.first_name} {comment.user.last_name}
-                                    </Link>
-                                </Typography>
-                                <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
-                                    {dateTimeFormatter.format(new Date(comment.date_time))}
-                                </Typography>
-                                <Typography variant="body2" sx={{ mt: 0.5 }}>{comment.comment}</Typography>
-                            </Box>
+                            <UserComment key={comment._id} comment={comment} />
                         ))}
 
                         {currentUser && (

@@ -18,19 +18,10 @@ function App() {
 
     return (
         <>
-            <TopBar context={context} user={user} setUser={setUser} />
+            <TopBar context={context} user={user} setUser={setUser} setContext={setContext} />
             <Routes>
                 <Route path="/login" element={
                     user ? <Navigate to={`/users/${user._id}`} replace /> : (
-                        <Grid container spacing={2} sx={{ p: 2 }}>
-                            <Grid item xs={12}>
-                                <LoginRegister onLoginChange={setUser} />
-                            </Grid>
-                        </Grid>
-                    )
-                } />
-                <Route path="/register" element={
-                    user ? <Navigate to="/" replace /> : (
                         <Grid container spacing={2} sx={{ p: 2 }}>
                             <Grid item xs={12}>
                                 <LoginRegister onLoginChange={setUser} />

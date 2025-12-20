@@ -1,20 +1,22 @@
 import React from 'react'
 import { AppBar, Box, Toolbar, Typography, Button } from '@mui/material'
 import { Link, useNavigate } from 'react-router-dom'
+import { BE_URL } from '../../lib/config'
 
-function TopBar({ context, user, setUser }) {
+function TopBar({ context, user, setUser, setContext }) {
     const navigate = useNavigate()
+
     const handleLogout = async () => {
         try {
-            await fetch('http://localhost:8081/admin/logout', {
+            await fetch(`${BE_URL}/admin/logout`, {
                 method: 'POST',
                 credentials: 'include',
             })
+        } catch (error) {
+            console.error('Logout failed', error)
+        } finally {
             setUser(null)
-            navigate('/')
-        } catch (err) {
-            console.error('Logout failed', err)
-            setUser(null)
+            if (setContext) setContext('Home')
             navigate('/login')
         }
     }
@@ -37,8 +39,8 @@ function TopBar({ context, user, setUser }) {
                                 Hi {user.first_name}
                             </Typography>
 
-                            <Button color="inherit" component={Link} to="/upload" sx={{ marginRight: 1, border: '1px solid white' }}>
-                                Upload new Photo
+                            <Button color="inherit" component={Link} to="/add-photo" sx={{ marginRight: 1, border: '1px solid white' }}>
+                                Add Photo
                             </Button>
 
                             <Button color="inherit" onClick={handleLogout}>

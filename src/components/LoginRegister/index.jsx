@@ -1,19 +1,20 @@
 import React, { useState } from 'react'
-import { Grid, Typography, TextField, Button, Alert, Paper, Box, Link } from '@mui/material'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { 
+    Grid, Paper, Typography, TextField, Button, Alert, Box, Tabs, Tab 
+} from '@mui/material'
 import { BE_URL } from '../../lib/config'
 
 function LoginRegister({ onLoginChange }) {
-    const navigate = useNavigate()
-    const location = useLocation()
-    
-    const isLoginView = location.pathname === '/login'
+    const [tabValue, setTabValue] = useState(0)
 
-    const [loginName, setLoginName] = useState('')
-    const [loginPassword, setLoginPassword] = useState('')
-    const [loginError, setLoginError] = useState('')
+    const [message, setMessage] = useState({ type: '', text: '' })
 
-    const [registerData, setRegisterData] = useState({
+    const [loginData, setLoginData] = useState({
+        login_name: '',
+        password: ''
+    })
+
+    const [regData, setRegData] = useState({
         login_name: '',
         password: '',
         confirm_password: '',
@@ -23,19 +24,30 @@ function LoginRegister({ onLoginChange }) {
         description: '',
         occupation: ''
     })
-    const [registerMessage, setRegisterMessage] = useState({ type: '', text: '' })
+
+    const handleTabChange = (event, newValue) => {
+        setTabValue(newValue)
+        setMessage({ type: '', text: '' })
+    }
+
+    const handleInput = (e, type) => {
+        const { name, value } = e.target
+        if (type === 'login') {
+            setLoginData({ ...loginData, [name]: value })
+        } else {
+            setRegData({ ...regData, [name]: value })
+        }
+    }
 
     const handleLogin = async (e) => {
         e.preventDefault()
-        setLoginError('')
+        setMessage({ type: '', text: '' })
+
         try {
             const response = await fetch(`${BE_URL}/admin/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    login_name: loginName,
-                    password: loginPassword
-                }),
+                body: JSON.stringify(loginData),
                 credentials: 'include',
             })
 
@@ -47,21 +59,22 @@ function LoginRegister({ onLoginChange }) {
             const user = await response.json()
             onLoginChange(user)
 
-        } catch (error) {
-            setLoginError(error.message)
+        } catch (err) {
+            setMessage({ type: 'error', text: err.message })
         }
-    }
-
-    const handleRegisterInput = (e) => {
-        setRegisterData({ ...registerData, [e.target.name]: e.target.value })
     }
 
     const handleRegister = async (e) => {
         e.preventDefault()
-        setRegisterMessage({ type: '', text: '' })
+        setMessage({ type: '', text: '' })
 
-        if (registerData.password !== registerData.confirm_password) {
-            setRegisterMessage({ type: 'error', text: "Passwords do not match!" })
+        if (regData.password !== regData.confirm_password) {
+            setMessage({ type: 'error', text: "Passwords do not match!" })
+            return
+        }
+        
+        if (!regData.login_name || !regData.password || !regData.first_name || !regData.last_name) {
+            setMessage({ type: 'error', text: "Please fill all required fields (*)" })
             return
         }
 
@@ -70,13 +83,7 @@ function LoginRegister({ onLoginChange }) {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    login_name: registerData.login_name,
-                    password: registerData.password,
-                    first_name: registerData.first_name,
-                    last_name: registerData.last_name,
-                    location: registerData.location,
-                    description: registerData.description,
-                    occupation: registerData.occupation
+                    ...regData
                 }),
                 credentials: 'include'
             })
@@ -85,119 +92,102 @@ function LoginRegister({ onLoginChange }) {
                 const errData = await response.json()
                 throw new Error(errData.message || 'Registration failed')
             }
-
-            alert("Registration successful! Switching to login...")
+            setMessage({ type: 'success', text: "Registration successful! Please login." })
             
-            setRegisterData({
+            setRegData({
                 login_name: '', password: '', confirm_password: '',
                 first_name: '', last_name: '', location: '', description: '', occupation: ''
             })
-
-            navigate('/login') 
-
+            setTabValue(0)
         } catch (err) {
-            setRegisterMessage({ type: 'error', text: err.message || "Registration failed" })
+            setMessage({ type: 'error', text: err.message || "Registration failed" })
         }
     }
 
     return (
         <Grid container justifyContent="center" alignItems="center" sx={{ minHeight: '60vh' }}>
             <Grid item xs={12} sm={8} md={5}>
-                <Paper elevation={3} sx={{ padding: 4, borderRadius: 2 }}>
+                <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
                     
-                    {isLoginView ? (
-                        <Box>
-                            <Typography variant="h4" align="center" gutterBottom fontWeight="bold" color="primary">
-                                Login
-                            </Typography>
-                            
-                            {registerMessage.type === 'success' && (
-                                <Alert severity="success" sx={{ mb: 2 }}>{registerMessage.text}</Alert>
-                            )}
-                            
-                            {loginError && <Alert severity="error" sx={{ mb: 2 }}>{loginError}</Alert>}
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                        <Tabs value={tabValue} onChange={handleTabChange} variant="fullWidth" centered>
+                            <Tab label="Login" />
+                            <Tab label="Register" />
+                        </Tabs>
+                    </Box>
 
+                    <Box sx={{ p: 4 }}>
+                        <Typography variant="h5" align="center" gutterBottom fontWeight="bold" color="primary">
+                            {tabValue === 0 ? 'Login' : 'Create an account'}
+                        </Typography>
+
+                        {message.text && (
+                            <Alert severity={message.type} sx={{ mb: 2 }}>{message.text}</Alert>
+                        )}
+
+                        {tabValue === 0 && (
                             <form onSubmit={handleLogin}>
-                                <TextField
-                                    label="Login Name" fullWidth margin="normal"
-                                    value={loginName} onChange={(e) => setLoginName(e.target.value)} required
+                                <TextField 
+                                    label="Login Name" fullWidth margin="normal" 
+                                    name="login_name" value={loginData.login_name} onChange={(e) => handleInput(e, 'login')} 
+                                    required 
                                 />
-                                <TextField
-                                    label="Password" type="password" fullWidth margin="normal"
-                                    value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required
+                                <TextField 
+                                    label="Password" type="password" fullWidth margin="normal" 
+                                    name="password" value={loginData.password} onChange={(e) => handleInput(e, 'login')} 
+                                    required 
                                 />
-                                <Button type="submit" variant="contained" fullWidth size="large" sx={{ mt: 3, mb: 2 }}>
-                                    Sign In
+                                <Button type="submit" variant="contained" fullWidth size="large" sx={{ mt: 3 }}>
+                                    Login
                                 </Button>
                             </form>
+                        )}
 
-                            <Box textAlign="center" mt={2}>
-                                <Typography variant="body2">
-                                    Don't have an account?{' '}
-                                    <Link 
-                                        component="button" variant="body2"
-                                        onClick={() => {
-                                            navigate('/register')
-                                            setLoginError('')
-                                        }}
-                                        sx={{ fontWeight: 'bold', cursor: 'pointer' }}
-                                    >
-                                        Register here
-                                    </Link>
-                                </Typography>
-                            </Box>
-                        </Box>
-                    ) : (
-                        <Box>
-                            <Typography variant="h4" align="center" gutterBottom fontWeight="bold" color="primary">
-                                Register
-                            </Typography>
-
-                            {registerMessage.text && registerMessage.type === 'error' && (
-                                <Alert severity="error" sx={{ mb: 2 }}>{registerMessage.text}</Alert>
-                            )}
-
+                        {tabValue === 1 && (
                             <form onSubmit={handleRegister}>
-                                <TextField name="login_name" label="Login Name *" fullWidth margin="dense" value={registerData.login_name} onChange={handleRegisterInput} required />
-
+                                <TextField 
+                                    label="Login Name *" fullWidth margin="dense" 
+                                    name="login_name" value={regData.login_name} onChange={(e) => handleInput(e, 'register')} 
+                                    required 
+                                />
                                 <Grid container spacing={1}>
                                     <Grid item xs={6}>
-                                        <TextField name="first_name" label="First Name *" fullWidth margin="dense" value={registerData.first_name} onChange={handleRegisterInput} required />
+                                        <TextField 
+                                            label="First Name *" fullWidth margin="dense" 
+                                            name="first_name" value={regData.first_name} onChange={(e) => handleInput(e, 'register')} 
+                                            required 
+                                        />
                                     </Grid>
                                     <Grid item xs={6}>
-                                        <TextField name="last_name" label="Last Name *" fullWidth margin="dense" value={registerData.last_name} onChange={handleRegisterInput} required />
+                                        <TextField 
+                                            label="Last Name *" fullWidth margin="dense" 
+                                            name="last_name" value={regData.last_name} onChange={(e) => handleInput(e, 'register')} 
+                                            required 
+                                        />
                                     </Grid>
                                 </Grid>
+                                <TextField 
+                                    label="Password *" type="password" fullWidth margin="dense" 
+                                    name="password" value={regData.password} onChange={(e) => handleInput(e, 'register')} 
+                                    required 
+                                />
+                                <TextField 
+                                    label="Confirm Password *" type="password" fullWidth margin="dense" 
+                                    name="confirm_password" value={regData.confirm_password} onChange={(e) => handleInput(e, 'register')} 
+                                    required 
+                                />
                                 
-                                <TextField name="password" label="Password *" type="password" fullWidth margin="dense" value={registerData.password} onChange={handleRegisterInput} required />
-                                <TextField name="confirm_password" label="Confirm Password *" type="password" fullWidth margin="dense" value={registerData.confirm_password} onChange={handleRegisterInput} required />
-                                
-                                <TextField name="occupation" label="Occupation" fullWidth margin="dense" value={registerData.occupation} onChange={handleRegisterInput} />
-                                <TextField name="location" label="Location" fullWidth margin="dense" value={registerData.location} onChange={handleRegisterInput} />
-                                <TextField name="description" label="Description" fullWidth margin="dense" multiline rows={2} value={registerData.description} onChange={handleRegisterInput} />
+                                <TextField label="Occupation" fullWidth margin="dense" name="occupation" value={regData.occupation} onChange={(e) => handleInput(e, 'register')} />
+                                <TextField label="Location" fullWidth margin="dense" name="location" value={regData.location} onChange={(e) => handleInput(e, 'register')} />
+                                <TextField label="Description" fullWidth margin="dense" multiline rows={2} name="description" value={regData.description} onChange={(e) => handleInput(e, 'register')} />
 
-                                <Button type="submit" variant="contained" color="primary" fullWidth size="large" sx={{ mt: 3, mb: 2 }}>
-                                    Register Me
+                                <Button type="submit" variant="contained" color="primary" fullWidth size="large" sx={{ mt: 3 }}>
+                                    Register
                                 </Button>
                             </form>
+                        )}
+                    </Box>
 
-                            <Box textAlign="center" mt={2}>
-                                <Typography variant="body2">
-                                    Already have an account?{' '}
-                                    <Link 
-                                        component="button" variant="body2"
-                                        onClick={() => {
-                                            navigate('/login')
-                                            setRegisterMessage({ type: '', text: '' })
-                                        }}
-                                        sx={{ fontWeight: 'bold', cursor: 'pointer' }}
-                                    >
-                                        Back to Login
-                                    </Link>
-                                </Typography>
-                            </Box>
-                        </Box>
-                    )}
                 </Paper>
             </Grid>
         </Grid>

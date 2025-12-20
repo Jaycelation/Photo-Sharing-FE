@@ -1,0 +1,41 @@
+
+.user-list-title {
+    margin: 16px 0 16px 16px;
+    font-weight: bold;
+    color: #1976d2;
+}
+
+.user-avatar {
+    background-color: #1976d2 !important; 
+}
+
+.user-name {
+    font-weight: bold;
+    color: #333;
+}
+
+.bubble-container {
+    display: flex;
+    gap: 8px;       
+    margin-top: 8px;
+}
+
+.count-bubble {
+    display: flex;
+    align-items: center;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2), 
+                0px 1px 1px 0px rgba(0,0,0,0.14), 
+                0px 1px 3px 0px rgba(0,0,0,0.12);
+}
+
+.bubble-green {
+    background-color: #4caf50;
+}
+
+.bubble-red {
+    background-color: #f44336;
+}
