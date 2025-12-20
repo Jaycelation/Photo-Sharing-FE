@@ -21,7 +21,7 @@ function App() {
             <TopBar context={context} user={user} setUser={setUser} />
             <Routes>
                 <Route path="/login" element={
-                    user ? <Navigate to="/" replace /> : (
+                    user ? <Navigate to={`/users/${user._id}`} replace /> : (
                         <Grid container spacing={2} sx={{ p: 2 }}>
                             <Grid item xs={12}>
                                 <LoginRegister onLoginChange={setUser} />
