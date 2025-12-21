@@ -4,7 +4,7 @@ import { Button, Typography, Box, Alert, Input } from '@mui/material'
 import { BE_URL } from '../../lib/config'
 import './styles.css'
 
-function AddPhoto({ onRefresh, currentUser }) { 
+function PhotoAdd({ onRefresh, currentUser }) { 
     const [file, setFile] = useState(null)
     const [error, setError] = useState('')
     const navigate = useNavigate()

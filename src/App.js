@@ -46,7 +46,7 @@ function App() {
                                 <Paper elevation={3} sx={{ p: 2, minHeight: '80vh' }}>
                                     <Routes>
                                         <Route path="/users/:userId" element={<UserDetail setContext={setContext} onRefresh={handleRefresh} currentUser={user} />} />
-                                        <Route path="/photos/:userId" element={<UserPhotos setContext={setContext} currentUser={user} />} />
+                                        <Route path="/photos/:userId" element={<UserPhotos setContext={setContext} onRefresh={handleRefresh} currentUser={user} />} />
                                         <Route path="/upload" element={<PhotoAdd currentUser={user} onRefresh={handleRefresh}/>} />
                                         <Route path="/users" element={<Alert severity="info" sx={{ mt: 2 }}>Select a user from the list.</Alert>} />
                                         
