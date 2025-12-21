@@ -26,7 +26,7 @@ function TopBar({ context, user, setUser, setContext }) {
             <AppBar position="static">
                 <Toolbar>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        Jayce Dang Photo App
+                        Dang Duc Tai
                     </Typography>
 
                     <Typography variant="h6" component="div" sx={{ marginRight: 2 }}>
@@ -39,7 +39,7 @@ function TopBar({ context, user, setUser, setContext }) {
                                 Hi {user.first_name}
                             </Typography>
 
-                            <Button color="inherit" component={Link} to="/add-photo" sx={{ marginRight: 1, border: '1px solid white' }}>
+                            <Button color="inherit" component={Link} to="/upload" sx={{ marginRight: 1, border: '1px solid white' }}>
                                 Add Photo
                             </Button>
 

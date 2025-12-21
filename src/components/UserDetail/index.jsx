@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom'
 import { Card, CardContent, Typography, Button, Box } from '@mui/material'
 import fetchModel from '../../lib/fetchModelData'
 
+import './styles.css'
+
 function UserDetail({ setContext }) {
     const { userId } = useParams()
     const [user, setUser] = useState(null)
@@ -23,9 +25,9 @@ function UserDetail({ setContext }) {
     if (!user) return <Typography p={2}>Loading...</Typography>
 
     return (
-        <Card variant="outlined" sx={{ margin: 'auto', maxWidth: 600, mt: 4 }}>
+        <Card variant="outlined" className="user-detail-card">
             <CardContent>
-                <Typography variant="h4" gutterBottom>
+                <Typography variant="h4" gutterBottom className="user-detail-name">
                     {user.first_name} {user.last_name}
                 </Typography>
 
@@ -33,15 +35,15 @@ function UserDetail({ setContext }) {
                     {user.occupation}
                 </Typography>
 
-                <Typography variant="body1" sx={{ mb: 2, fontStyle: 'italic' }}>
+                <Typography variant="body1" className="user-description">
                     "{user.description}"
                 </Typography>
 
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                <Typography variant="body2" color="text.secondary" className="user-location">
                     <strong>Location:</strong> {user.location}
                 </Typography>
 
-                <Box display="flex" justifyContent="flex-start">
+                <Box className="detail-action-box">
                     <Button
                         variant="contained"
                         component={Link}

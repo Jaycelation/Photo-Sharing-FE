@@ -41,7 +41,7 @@ function App() {
                                     <Routes>
                                         <Route path="/users/:userId" element={<UserDetail setContext={setContext} currentUser={user} />} />
                                         <Route path="/photos/:userId" element={<UserPhotos setContext={setContext} currentUser={user} />} />
-                                        <Route path="/upload" element={<PhotoAdd />} />
+                                        <Route path="/upload" element={<PhotoAdd currentUser={user}/>} />
                                         <Route path="/users" element={<Alert severity="info" sx={{ mt: 2 }}>Select a user from the list.</Alert>} />
                                         
                                         <Route path="/" element={<Navigate to="/users" replace />} />

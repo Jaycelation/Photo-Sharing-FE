@@ -2,8 +2,9 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Typography, Box, Alert, Input } from '@mui/material'
 import { BE_URL } from '../../lib/config'
+import './styles.css'
 
-function AddPhoto() {
+function AddPhoto({ onRefresh, currentUser }) { 
     const [file, setFile] = useState(null)
     const [error, setError] = useState('')
     const navigate = useNavigate()
@@ -34,7 +35,15 @@ function AddPhoto() {
             if (!response.ok) {
                 throw new Error("Upload failed")
             }
-            navigate('/')
+            
+            if (onRefresh) onRefresh() 
+
+            if (currentUser) {
+                navigate(`/photos/${currentUser._id}`)
+            } else {
+                navigate('/')
+            }
+
         } catch (err) {
             console.error(err)
             setError("Error uploading photo.")
@@ -42,19 +51,22 @@ function AddPhoto() {
     }
 
     return (
-        <Box sx={{ p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Typography variant="h4" gutterBottom>Upload New Photo</Typography>
+        <Box className="add-photo-container">
+            <Typography variant="h4" gutterBottom fontWeight="bold" color="primary">
+                Upload New Photo
+            </Typography>
 
-            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+            {error && <Alert severity="error" sx={{ mb: 2, width: '100%', maxWidth: '400px' }}>{error}</Alert>}
 
-            <form onSubmit={handleUpload} style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%', maxWidth: '400px' }}>
+            <form onSubmit={handleUpload} className="add-photo-form">
                 <Input
                     type="file"
                     onChange={handleFileChange}
                     inputProps={{ accept: 'image/*' }}
+                    fullWidth
                 />
 
-                <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                <Box className="button-group">
                     <Button 
                         variant="outlined" 
                         color="primary" 
@@ -69,12 +81,12 @@ function AddPhoto() {
                 </Box>
 
                 {file && (
-                    <Box mt={2} textAlign="center">
-                        <Typography variant="subtitle1">Preview:</Typography>
+                    <Box className="preview-container">
+                        <Typography variant="subtitle1" fontWeight="bold">Preview:</Typography>
                         <img
                             src={URL.createObjectURL(file)}
                             alt="preview"
-                            style={{ maxWidth: '100%', maxHeight: '300px', marginTop: '10px', objectFit: 'contain' }}
+                            className="preview-image"
                         />
                     </Box>
                 )}

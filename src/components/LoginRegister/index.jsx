@@ -4,9 +4,10 @@ import {
 } from '@mui/material'
 import { BE_URL } from '../../lib/config'
 
+import './styles.css'
+
 function LoginRegister({ onLoginChange }) {
     const [tabValue, setTabValue] = useState(0)
-
     const [message, setMessage] = useState({ type: '', text: '' })
 
     const [loginData, setLoginData] = useState({
@@ -59,8 +60,8 @@ function LoginRegister({ onLoginChange }) {
             const user = await response.json()
             onLoginChange(user)
 
-        } catch (err) {
-            setMessage({ type: 'error', text: err.message })
+        } catch (error) {
+            setMessage({ type: 'error', text: error.message })
         }
     }
 
@@ -82,9 +83,7 @@ function LoginRegister({ onLoginChange }) {
             const response = await fetch(`${BE_URL}/user`, { 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ...regData
-                }),
+                body: JSON.stringify({ ...regData }),
                 credentials: 'include'
             })
 
@@ -99,30 +98,30 @@ function LoginRegister({ onLoginChange }) {
                 first_name: '', last_name: '', location: '', description: '', occupation: ''
             })
             setTabValue(0)
-        } catch (err) {
-            setMessage({ type: 'error', text: err.message || "Registration failed" })
+        } catch (error) {
+            setMessage({ type: 'error', text: error.message || "Registration failed" })
         }
     }
 
     return (
-        <Grid container justifyContent="center" alignItems="center" sx={{ minHeight: '60vh' }}>
+        <Grid container justifyContent="center" alignItems="center" className="login-grid-container">
             <Grid item xs={12} sm={8} md={5}>
-                <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+                <Paper elevation={3} className="login-paper">
                     
-                    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                    <Box className="tab-container">
                         <Tabs value={tabValue} onChange={handleTabChange} variant="fullWidth" centered>
                             <Tab label="Login" />
                             <Tab label="Register" />
                         </Tabs>
                     </Box>
 
-                    <Box sx={{ p: 4 }}>
-                        <Typography variant="h5" align="center" gutterBottom fontWeight="bold" color="primary">
+                    <Box className="form-box">
+                        <Typography variant="h5" align="center" gutterBottom color="primary" className="form-title">
                             {tabValue === 0 ? 'Login' : 'Create an account'}
                         </Typography>
 
                         {message.text && (
-                            <Alert severity={message.type} sx={{ mb: 2 }}>{message.text}</Alert>
+                            <Alert severity={message.type} className="alert-message">{message.text}</Alert>
                         )}
 
                         {tabValue === 0 && (
@@ -137,7 +136,7 @@ function LoginRegister({ onLoginChange }) {
                                     name="password" value={loginData.password} onChange={(e) => handleInput(e, 'login')} 
                                     required 
                                 />
-                                <Button type="submit" variant="contained" fullWidth size="large" sx={{ mt: 3 }}>
+                                <Button type="submit" variant="contained" fullWidth size="large" className="submit-button">
                                     Login
                                 </Button>
                             </form>
@@ -181,7 +180,7 @@ function LoginRegister({ onLoginChange }) {
                                 <TextField label="Location" fullWidth margin="dense" name="location" value={regData.location} onChange={(e) => handleInput(e, 'register')} />
                                 <TextField label="Description" fullWidth margin="dense" multiline rows={2} name="description" value={regData.description} onChange={(e) => handleInput(e, 'register')} />
 
-                                <Button type="submit" variant="contained" color="primary" fullWidth size="large" sx={{ mt: 3 }}>
+                                <Button type="submit" variant="contained" color="primary" fullWidth size="large" className="submit-button">
                                     Register
                                 </Button>
                             </form>

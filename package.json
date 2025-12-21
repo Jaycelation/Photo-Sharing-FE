@@ -27,6 +27,7 @@
     "web-vitals": "^5.1.0"
   },
   "devDependencies": {
+    "baseline-browser-mapping": "^2.9.11",
     "eslint": "^8.50.0",
     "eslint-plugin-react": "^7.32.2",
     "react-scripts": "5.0.1"

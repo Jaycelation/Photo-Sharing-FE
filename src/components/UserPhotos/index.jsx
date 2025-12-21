@@ -1,17 +1,17 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import {
-    Card, CardContent, CardHeader, Divider, Avatar, Box, Alert, CircularProgress, TextField, Button
+    Card, CardContent, CardHeader, CardActions, Divider, Avatar, Box, Alert, CircularProgress, TextField,Typography, Button, Collapse
 } from '@mui/material'
 import { red } from '@mui/material/colors'
 import SendIcon from '@mui/icons-material/Send'
-
+import CommentIcon from '@mui/icons-material/Comment'
 import fetchModel from '../../lib/fetchModelData'
 import { BE_URL } from '../../lib/config'
-
 import UserComment from '../UserComment'
+import './styles.css'
 
-function UserPhotos({ setContext, currentUser }) {
+function UserPhotos({ setContext, currentUser, onRefresh }) { 
     const { userId } = useParams()
     const [photos, setPhotos] = useState([])
     const [loading, setLoading] = useState(true)
@@ -19,17 +19,21 @@ function UserPhotos({ setContext, currentUser }) {
 
     const [commentInputs, setCommentInputs] = useState({})
 
+    const [click, setClick] = useState({})
+
     const dateTimeFormatter = useMemo(() => new Intl.DateTimeFormat(undefined, {
         dateStyle: 'medium', timeStyle: 'short',
     }), [])
 
     const loadData = async () => {
+        // alert("[UserPhotos] LoadData")
         try {
             const [userData, photosData] = await Promise.all([
                 fetchModel(`/user/${userId}`),
                 fetchModel(`/photosOfUser/${userId}`)
             ])
             if (userData) setContext(`Photos of ${userData.first_name} ${userData.last_name}`)
+            // alert("[UserPhotos] New -> Set photo")
             setPhotos(photosData)
         } catch (err) {
             console.error("Error:", err)
@@ -42,6 +46,13 @@ function UserPhotos({ setContext, currentUser }) {
     useEffect(() => {
         loadData()
     }, [userId])
+
+    const handleClick = (photoId) => {
+        setClick(prev => ({
+            ...prev,
+            [photoId]: !prev[photoId]
+        }))
+    }
 
     const handleCommentSubmit = async (photoId) => {
         const commentText = commentInputs[photoId]
@@ -56,20 +67,24 @@ function UserPhotos({ setContext, currentUser }) {
             })
 
             setCommentInputs({ ...commentInputs, [photoId]: '' })
-            loadData()
+            
+            loadData() 
+            setClick(prev => ({ ...prev, [photoId]: true }))
+            if (onRefresh) onRefresh()
+
         } catch (err) {
             console.error(err)
         }
     }
 
-    if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>
+    if (loading) return <Box className="loading-box"><CircularProgress /></Box>
     if (error) return <Alert severity="error" sx={{ m: 2 }}>{error}</Alert>
     if (!photos || photos.length === 0) return <Alert severity="info" sx={{ m: 2 }}>This user has not posted any photos yet.</Alert>
 
     return (
-        <Box sx={{ maxWidth: 800, margin: 'auto', mt: 4 }}>
+        <Box className="photo-list-container">
             {photos.map((photo) => (
-                <Card key={photo._id} variant="outlined" sx={{ marginBottom: 4 }}>
+                <Card key={photo._id} variant="outlined" className="photo-card">
                     <CardHeader
                         avatar={<Avatar sx={{ bgcolor: red[500] }}>P</Avatar>}
                         title={dateTimeFormatter.format(new Date(photo.date_time))}
@@ -81,36 +96,67 @@ function UserPhotos({ setContext, currentUser }) {
                             component="img"
                             src={`${BE_URL}/images/${photo.file_name}`}
                             alt={photo.file_name}
-                            sx={{ width: '100%', height: 'auto', display: 'block', mb: 2, borderRadius: 1, objectFit: 'contain', maxHeight: '500px' }}
+                            className="photo-image"
                         />
-
-                        <Divider sx={{ my: 2 }}>Comments</Divider>
-
-                        {photo.comments?.map((comment) => (
-                            <UserComment key={comment._id} comment={comment} />
-                        ))}
-
-                        {currentUser && (
-                            <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
-                                <TextField
-                                    size="small"
-                                    fullWidth
-                                    placeholder="Write a comment..."
-                                    value={commentInputs[photo._id] || ''}
-                                    onChange={(e) => setCommentInputs({ ...commentInputs, [photo._id]: e.target.value })}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' && !e.shiftKey) {
-                                            e.preventDefault()
-                                            handleCommentSubmit(photo._id)
-                                        }
-                                    }}
-                                />
-                                <Button variant="contained" endIcon={<SendIcon />} onClick={() => handleCommentSubmit(photo._id)}>
-                                    Post
-                                </Button>
-                            </Box>
-                        )}
                     </CardContent>
+
+                    <CardActions disableSpacing>
+                        <Button 
+                            startIcon={<CommentIcon />}
+                            onClick={() => handleClick(photo._id)}
+                            size="small"
+                        >
+                            {click[photo._id] 
+                                ? "Hide Comments" 
+                                : `Show Comments (${photo.comments?.length || 0})`}
+                        </Button>
+                    </CardActions>
+
+                    <Collapse in={click[photo._id]} timeout="auto" unmountOnExit>
+                        <CardContent>
+                            <Divider sx={{ mb: 2 }} />
+                            
+                            {photo.comments?.length > 0 ? (
+                                photo.comments.map((comment) => (
+                                    <UserComment 
+                                        key={comment._id} 
+                                        comment={comment} 
+                                        currentUser={currentUser}
+                                        photoId={photo._id}
+                                        onRefresh={() => {
+                                            loadData()
+                                            if (onRefresh) onRefresh()
+                                        }}
+                                    />
+                                ))
+                            ) : (
+                                <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                                    No comments yet.
+                                </Typography>
+                            )}
+
+                            {currentUser && (
+                                <Box className="comment-input-area">
+                                    <TextField
+                                        size="small"
+                                        fullWidth
+                                        placeholder="Write a comment..."
+                                        value={commentInputs[photo._id] || ''}
+                                        onChange={(e) => setCommentInputs({ ...commentInputs, [photo._id]: e.target.value })}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && !e.shiftKey) {
+                                                e.preventDefault()
+                                                handleCommentSubmit(photo._id)
+                                            }
+                                        }}
+                                    />
+                                    <Button variant="contained" endIcon={<SendIcon />} onClick={() => handleCommentSubmit(photo._id)}>
+                                        Post
+                                    </Button>
+                                </Box>
+                            )}
+                        </CardContent>
+                    </Collapse>
                 </Card>
             ))}
         </Box>
