@@ -95,4 +95,4 @@ function PhotoAdd({ onRefresh, currentUser }) {
     )
 }
 
-export default AddPhoto
+export default PhotoAdd
