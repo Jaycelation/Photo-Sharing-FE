@@ -147,6 +147,7 @@ function UserPhotos({ setContext, currentUser, onRefresh }) {
                                 )}
 
                                 {currentUser && (
+
                                     <Box className="comment-input-area">
                                         <TextField
                                             size="small"

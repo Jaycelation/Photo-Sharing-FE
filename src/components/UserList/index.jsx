@@ -5,7 +5,7 @@ import {
 import { Link } from "react-router-dom"
 import PersonIcon from '@mui/icons-material/Person'
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera'
-
+import CommentIcon from '@mui/icons-material/Comment'
 import fetchModel from "../../lib/fetchModelData"
 import "./styles.css"
 
@@ -45,6 +45,12 @@ function UserList({ refreshKey }) {
                                         <Box className="bubble photo-bubble" title="Photos posted">
                                             <PhotoCameraIcon style={{ fontSize: 12, marginRight: 2 }} />
                                             {item.photo_count}
+                                        </Box>
+                                    )}
+                                    {item.photo_count > 0 && (
+                                        <Box className="bubble comment-bubble" title="Comments posted">
+                                            <CommentIcon style={{ fontSize: 12, marginRight: 2 }} />
+                                            {item.comment_count}
                                         </Box>
                                     )}
                                 </Box>

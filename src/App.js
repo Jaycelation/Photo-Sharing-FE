@@ -16,7 +16,7 @@ function App() {
     const [context, setContext] = useState('Home')
     const [user, setUser] = useState(null)
 
-    const [refreshKey, setRefreshKey] = useState(0)
+    const [refreshKey, setRefreshKey] = useState(0) //CC
 
     const handleRefresh = () => {
         setRefreshKey(prev => prev + 1)
