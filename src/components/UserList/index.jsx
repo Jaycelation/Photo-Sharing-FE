@@ -1,73 +1,54 @@
-
 import React, { useState, useEffect } from "react"
 import {
-    Divider, List, ListItem, ListItemText, ListItemAvatar, Typography, Avatar, Box, IconButton
+    Divider, List, ListItem, ListItemText, ListItemAvatar, Avatar, Typography, Box
 } from "@mui/material"
-import PhotoOutlinedIcon from "@mui/icons-material/PhotoOutlined"
-import PersonIcon from '@mui/icons-material/Person'
 import { Link } from "react-router-dom"
-import fetchModel from "../../lib/fetchModelData"
+import PersonIcon from '@mui/icons-material/Person'
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera'
 
-function UserList() {
+import fetchModel from "../../lib/fetchModelData"
+import "./styles.css"
+
+function UserList({ refreshKey }) {
     const [users, setUsers] = useState([])
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const data = await fetchModel("/user/list")
-                if (data) {
-                    setUsers(data)
-                }
-            } catch (error) {
-                console.error("Error fetching user list:", error)
+                if (data) setUsers(data)
+            } catch (err) {
+                console.error("Error fetching user list:", err)
             }
         }
         fetchData()
-    }, [])
+    }, [refreshKey])
 
     return (
-        <div className="user-list">
-            <Typography variant="h5" sx={{ mb: 2, mt: 2, px: 2, fontWeight: 'bold' }}>
-                User List
-            </Typography>
-            <List component="nav" sx={{ width: '100%', bgcolor: 'background.paper' }}>
+        <div>
+            <Typography variant="h6" className="user-list-title">User List</Typography>
+            <List component="nav">
                 {users.map((item) => (
                     <React.Fragment key={item._id}>
-                        <ListItem alignItems="flex-start">
+                        <ListItem button component={Link} to={`/users/${item._id}`} className="user-list-item">
                             <ListItemAvatar>
-                                <Avatar sx={{ bgcolor: "primary.main" }}>
-                                    {(item.first_name && item.last_name)
-                                        ? `${item.first_name[0]}${item.last_name[0]}`
-                                        : <PersonIcon />}
-                                </Avatar>
+                                <Avatar className="user-avatar"><PersonIcon /></Avatar>
                             </ListItemAvatar>
 
-                            <ListItemText
-                                primary={
-                                    <Link
-                                        to={`/users/${item._id}`}
-                                        style={{ textDecoration: "none", color: "#333", fontWeight: "bold" }}
-                                    >
+                            <ListItemText primary={
+                                <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
+                                    <Typography variant="body1" className="user-name">
                                         {item.first_name} {item.last_name}
-                                    </Link>
-                                }
-                                secondary={
-                                    <Typography variant="body2" color="text.secondary">
-                                        Click name to see details
                                     </Typography>
-                                }
-                            />
 
-                            <Box>
-                                <IconButton
-                                    component={Link}
-                                    to={`/photos/${item._id}`}
-                                    color="primary"
-                                    title="View Photos"
-                                >
-                                    <PhotoOutlinedIcon />
-                                </IconButton>
-                            </Box>
+                                    {item.photo_count > 0 && (
+                                        <Box className="bubble photo-bubble" title="Photos posted">
+                                            <PhotoCameraIcon style={{ fontSize: 12, marginRight: 2 }} />
+                                            {item.photo_count}
+                                        </Box>
+                                    )}
+                                </Box>
+                            } />
                         </ListItem>
                         <Divider variant="inset" component="li" />
                     </React.Fragment>
@@ -76,5 +57,4 @@ function UserList() {
         </div>
     )
 }
-
 export default UserList

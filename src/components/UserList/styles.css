@@ -1,41 +1,38 @@
-
 .user-list-title {
-    margin: 16px 0 16px 16px;
-    font-weight: bold;
+    margin: 16px 0 16px 16px !important;
+    font-weight: bold !important;
     color: #1976d2;
 }
 
 .user-avatar {
-    background-color: #1976d2 !important; 
+    background-color: #1976d2 !important;
 }
 
 .user-name {
-    font-weight: bold;
+    font-weight: bold !important;
     color: #333;
 }
 
-.bubble-container {
-    display: flex;
-    gap: 8px;       
-    margin-top: 8px;
-}
-
-.count-bubble {
+.bubble {
     display: flex;
     align-items: center;
-    color: white;
+    justify-content: center;
     padding: 2px 8px;
     border-radius: 12px;
     font-size: 0.75rem;
-    box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2), 
-                0px 1px 1px 0px rgba(0,0,0,0.14), 
-                0px 1px 3px 0px rgba(0,0,0,0.12);
+    font-weight: bold;
+    color: white;
+    min-width: 20px;
 }
 
-.bubble-green {
-    background-color: #4caf50;
+.photo-bubble {
+    background-color: #11a609;
 }
 
-.bubble-red {
-    background-color: #f44336;
+.comment-bubble {
+    background-color: #d8132e;
+}
+
+.user-list-item:hover {
+    background-color: #f5f5f5;
 }
