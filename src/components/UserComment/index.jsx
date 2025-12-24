@@ -17,14 +17,15 @@ function UserComment({ comment, currentUser, photoId, onRefresh }) {
         dateStyle: 'medium', timeStyle: 'short',
     })
 
-    const isOwner = currentUser && (
-        (comment.user_id && currentUser._id === comment.user_id.toString()) || 
-        (comment.user && comment.user._id && currentUser._id === comment.user._id.toString())
+    const author = comment.user || comment.user_id
+
+    const isOwner = currentUser && author && (
+        String(currentUser._id) === String(author._id)
     )
 
     const handleDelete = async () => {
         if (!window.confirm("Are you sure you want to delete this comment?")) return
-        // alert("[UserComment] Handle Delete")
+        
         try {
             const response = await fetch(`${BE_URL}/comment/delete/${photoId}/${comment._id}`, {
                 method: 'DELETE',
@@ -36,10 +37,7 @@ function UserComment({ comment, currentUser, photoId, onRefresh }) {
                 throw new Error(err)
             }
 
-            // const data = await response.json()
-            // alert(`[UserComment] API:  ${data.message}`)
             if (onRefresh) {
-                // alert("[UserComment] Call onRefresh() -> UserPhotos")
                 onRefresh() 
             }
         } catch (error) {
@@ -73,16 +71,16 @@ function UserComment({ comment, currentUser, photoId, onRefresh }) {
     }
 
     return (
-        <Box className="comment-box">
+        <Box className="comment-box" sx={{ mb: 1.5, p: 1.5, bgcolor: '#f5f5f5', borderRadius: 2 }}>
             <Box display="flex" justifyContent="space-between" alignItems="flex-start">
                 <Box>
                     <Typography variant="subtitle2" component="span" fontWeight="bold">
-                        {comment.user ? (
-                            <Link to={`/users/${comment.user._id}`} className="comment-user-link">
-                                {comment.user.first_name} {comment.user.last_name}
+                        {author ? (
+                            <Link to={`/users/${author._id}`} className="comment-user-link" style={{ textDecoration: 'none', color: '#1976d2' }}>
+                                {author.first_name} {author.last_name}
                             </Link>
                         ) : (
-                            <span>Unknown User</span>
+                            <span style={{color: 'gray'}}>Unknown User</span>
                         )}
                     </Typography>
                     {" "}
@@ -130,7 +128,7 @@ function UserComment({ comment, currentUser, photoId, onRefresh }) {
                     </IconButton>
                 </Box>
             ) : (
-                <Typography variant="body2" className="comment-text">
+                <Typography variant="body2" className="comment-text" sx={{ mt: 0.5, wordWrap: 'break-word' }}>
                     {comment.comment}
                 </Typography>
             )}

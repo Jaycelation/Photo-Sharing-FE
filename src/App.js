@@ -1,8 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import Alert from '@mui/material/Alert'
+import CircularProgress from '@mui/material/CircularProgress'
+import Box from '@mui/material/Box'
 
 import TopBar from './components/TopBar'
 import UserList from './components/UserList'
@@ -11,15 +13,48 @@ import UserPhotos from './components/UserPhotos'
 import LoginRegister from './components/LoginRegister'
 import ProtectedRoute from './components/ProtectedRoute'
 import PhotoAdd from './components/PhotoAdd'
+import { BE_URL } from './lib/config'
 
 function App() {
     const [context, setContext] = useState('Home')
     const [user, setUser] = useState(null)
 
-    const [refreshKey, setRefreshKey] = useState(0) //CC
+    const [loading, setLoading] = useState(true) 
+    
+    const [refreshKey, setRefreshKey] = useState(0)
 
     const handleRefresh = () => {
         setRefreshKey(prev => prev + 1)
+    }
+
+    useEffect(() => {
+        const checkSession = async () => {
+            try {
+                const response = await fetch(`${BE_URL}/admin/me`, {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+
+                if (response.ok) {
+                    const userData = await response.json()
+                    setUser(userData)
+                }
+            } catch (error) {
+                console.log("Session expired or not logged in")
+            } finally {
+                setLoading(false) 
+            }
+        }
+        
+        checkSession()
+    }, [])
+
+    if (loading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+                <CircularProgress />
+            </Box>
+        )
     }
 
     return (
@@ -35,6 +70,7 @@ function App() {
                         </Grid>
                     )
                 } />
+                
                 <Route path="/*" element={
                     <ProtectedRoute userLoggedIn={user}>
                         <Grid container spacing={2} sx={{ p: 2 }}>
